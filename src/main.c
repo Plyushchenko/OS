@@ -1,3 +1,7 @@
+#include <desc.h>
+#include <ioport.h>
+#include <ints.h>
+
 static void qemu_gdb_hang(void)
 {
 #ifdef DEBUG
@@ -6,27 +10,15 @@ static void qemu_gdb_hang(void)
 #endif
 }
 
-#include <desc.h>
-#include <ioport.h>
-
-void interruptions_off()
-{
-	__asm__ volatile ("cli");
-}
-void interruptions_on()
-{
-	__asm__ volatile ("sti");
-}
 void main(void)
 {
-	interruptions_off();	
+	disable_ints();	
 	qemu_gdb_hang();
 	init_serial_port();
 	init_idt();				
 	init_pic();	
-	interruptions_on(); 
+	enable_ints(); 
 	__asm__("int $3");
-
 
 	while (1);
 }
