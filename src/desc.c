@@ -37,6 +37,18 @@ void interrupt_handler(uint64_t interrupt_vector, uint64_t error_code)
 		write_string_to_serial(JUST_INTERRUPTION);
     }
 	print_two_digits(interrupt_vector);
+	
+	//EOI	
+	if (((uint64_t)32) <= interrupt_vector && interrupt_vector < ((uint64_t)40))
+	{
+		out8(MASTER_PIC_COMMAND_PORT, 1 << 5);
+	}
+	if (((uint64_t)40) <= interrupt_vector && interrupt_vector < ((uint64_t)48))
+	{
+		out8(MASTER_PIC_COMMAND_PORT, 1 << 5);
+		out8(SLAVE_PIC_COMMAND_PORT, 1 << 5);
+	}
+
 }
 
 static struct desc_table_entry desc_table[DESC_NUMBER];
