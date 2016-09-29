@@ -27,15 +27,15 @@ char JUST_INTERRUPTION[] = "just interruption";
 
 void interrupt_handler(uint64_t interrupt_vector, uint64_t error_code)
 {
-    if (is_exception(interrupt_vector))
-    {
+	if (is_exception(interrupt_vector))
+	{
 		write_string_to_serial(EXCEPTION);
 		print_two_digits(error_code);
-    }
-    else
-    {
+	}
+	else
+	{
 		write_string_to_serial(JUST_INTERRUPTION);
-    }
+	}
 	print_two_digits(interrupt_vector);
 	
 	//EOI	
