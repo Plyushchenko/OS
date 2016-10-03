@@ -20,11 +20,10 @@ int printf_for_char(char c, struct buffer_information* info)
 {
 	if (info -> is_buffered)	
 	{
-		write_char_to_serial('?');
+/*		write_char_to_serial('?');
 		write_char_to_serial(c);
 		write_char_to_serial('\n');
-
-
+*/
 		if ((info -> buffer_position) + 1 < (info -> buffer_capacity))
 		{
 			(info -> buffer)[(info -> buffer_position)++] = c;
