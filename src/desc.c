@@ -14,13 +14,14 @@ int is_exception(uint64_t x)
 	return (x == 8) || (10 <= x && x <= 14) || (x == 17);
 }
 
-void print_two_digits(uint64_t x)
+/*void print_two_digits(uint64_t x)
 {
 	char a = x / 10 + '0';
 	write_char_to_serial(a);
 	a = x % 10 + '0';
 	write_char_to_serial(a);
 }
+*/
 
 char EXCEPTION[] = "exception";
 char JUST_INTERRUPTION[] = "just interruption";
@@ -29,14 +30,17 @@ void interrupt_handler(uint64_t interrupt_vector, uint64_t error_code)
 {
 	if (is_exception(interrupt_vector))
 	{
-		write_string_to_serial(EXCEPTION);
-		print_two_digits(error_code);
+		printf("%s %lld", EXCEPTION, error_code);
+//		write_string_to_serial(EXCEPTION);
+//		print_two_digits(error_code);
 	}
 	else
 	{
-		write_string_to_serial(JUST_INTERRUPTION);
+		printf("%s", JUST_INTERRUPTION);	
+//		write_string_to_serial(JUST_INTERRUPTION);
 	}
-	print_two_digits(interrupt_vector);
+	printf("%lld", interrupt_vector);	
+//	print_two_digits(interrupt_vector);
 	
 	//EOI	
 	if (((uint64_t)32) <= interrupt_vector && interrupt_vector < ((uint64_t)40))

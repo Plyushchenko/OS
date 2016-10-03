@@ -2,6 +2,7 @@
 #include <ioport.h>
 #include <ints.h>
 #include <pit.h>
+#include <io.h>
 
 static void qemu_gdb_hang(void)
 {

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <memory.h>
 #include <ioport.h>
+#include <io.h>
 
 #define MASTER_PIC_COMMAND_PORT 0x20
 #define MASTER_PIC_DATA_PORT 0x21
