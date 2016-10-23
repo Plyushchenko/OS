@@ -1,6 +1,6 @@
 #include <ioport.h>
 
-void init_serial_port() 
+void init_serial_port(void) 
 {
 	out8(SERIAL_PORT + 3, 0x80);	// set 7th bit for div coef
 	out8(SERIAL_PORT + 1, 0x00);    

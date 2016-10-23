@@ -26,8 +26,12 @@ multiboot_header:
 	.long bss_phys_end
 	.long start32
 
-
 	.align 16
+
+    .global multiboot_info
+multiboot_info:
+    .long 0
+
 gdt:
 	.quad 0x0000000000000000
 	.quad 0x00209b0000000000 // 64 bit ring0 code segment
@@ -56,6 +60,7 @@ stack_top:
 1:
 	movl $stack_top, %esp
 	pushl %eax
+    movl %ebx, multiboot_info
 	call videomem_clrscr
 	popl %eax
 	cmpl $0x2badb002, %eax
@@ -65,6 +70,7 @@ stack_top:
 	jmp fail
 
 1:
+    
 	call check_long_mode
 	call setup_mapping
 
@@ -135,6 +141,7 @@ setup_mapping:
 	movl $(bootstrap_pml4 - VIRTUAL_BASE), %edi
 	movl $(bootstrap_pml3 - VIRTUAL_BASE + PTE_PRESENT + PTE_WRITE), %eax
 	movl %eax, (%edi)
+	movl %eax, 2048(%edi)
 	movl %eax, 4088(%edi)
 
 	movl %cr4, %eax

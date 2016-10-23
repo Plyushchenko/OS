@@ -58,7 +58,7 @@ void interrupt_handler(uint64_t interrupt_vector, uint64_t error_code)
 static struct desc_table_entry desc_table[DESC_NUMBER];
 extern uint64_t handler_wrappers[];
 
-void init_idt()
+void init_idt(void)
 {
 	for (int i = 0; i < DESC_NUMBER; i++)
 		make_desc_table_entry(handler_wrappers[i], 14, &desc_table[i]);
@@ -68,7 +68,7 @@ void init_idt()
 		
 }
 
-void init_pic()
+void init_pic(void)
 {
 	out8(MASTER_PIC_COMMAND_PORT, (1 << 4) | (1 << 0));
 	out8(MASTER_PIC_DATA_PORT, 32);
