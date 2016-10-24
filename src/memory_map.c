@@ -6,7 +6,37 @@ extern char bss_phys_end[];
 char PRINT_MULTIBOOT_MEMORY_AVAILABLE[] = "MULTIBOOT_MEMORY_AVAILABLE";
 char PRINT_MULTIBOOT_MEMORY_RESERVED[] = "MULTIBOOT_MEMORY_RESERVED";
 
-void print_memory_map(void) 
+#define MAX_CHUNKS
+struct memory_chunk available_chunks[MAX_CHUNKS];
+uint32_t chunks_number = 0;
+
+void add_to_available_chunks(uint64_t l, uint64_t r)
+{
+	if (l > r)
+	{
+		return;
+	}
+	available_chunks[chunks_number].l = l;
+	available_chunks[chunks_number++].r = r;
+	printf("[0x%llx, 0x%llx] type = MULTIBOOT_MEMORY_AVAILABLE\n", l, r);
+}
+
+void sort_available_chunks(void)
+{
+	for (int i = 0; i < chunks_number; i++)
+	{
+		for (int j = i + 1; j < chunks_number; j++)
+		{
+			if (available_chunks[i].l > available_chunks[j].l)
+			{
+				struct memory_chunk tmp = available_chunks[i];
+				available_chunks[i] = available_chunks[j];
+				available_chunks[j] = tmp;
+			}
+		}
+	}
+}
+void parse_memory_map(void) 
 {
     multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info;
 
@@ -25,15 +55,32 @@ void print_memory_map(void)
 	{
 		uint64_t l = (mmap -> addr);
 		uint64_t r = l + (mmap -> len) - 1;
-		printf("[0x%llx, 0x%llx] ", l, r);
-		if ((mmap -> type) == MULTIBOOT_MEMORY_AVAILABLE)
+		uint32_t type = (mmap -> type);
+		if (type == MULTIBOOT_MEMORY_AVAILABLE)
 		{
-			printf("type = MULTIBOOT_MEMORY_AVAILABLE\n");
+			if (l <= kernel_begin && kernel_end <= r)
+			{
+				add_to_available_chunks(l,kernel_begin - 1);
+				add_to_available_chunks(kernel_end + 1, r);
+			}			
+			else if (l <= kernel_begin && r <= kernel_end)
+			{
+				add_to_available_chunks(l,kernel_begin - 1);
+			}
+			else if (kernel_begin <= l && kernel_end <= r)
+			{
+				add_to_available_chunks(kernel_end + 1, r);
+			}
+			else
+			{
+				add_to_available_chunks(l, r);
+			}
 		}
 		else
 		{
-			printf("type = MULTIBOOT_MEMORY_RESERVED\n");
-		}
+			printf("[0x%llx, 0x%llx] type = MULTIBOOT_MEMORY_RESERVED\n", l, r);
 
-    }
+		}
+	}
+	sort_available_chunks();
 }

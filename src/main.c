@@ -27,7 +27,7 @@ void main(void)
 //	out8(MASTER_PIC_DATA_PORT, 254); //binary(11111110), enable interruptions master
 //	enable_ints(); 
 
-	print_memory_map();
+	parse_memory_map();
 	
 //	while (1);
 	return;
