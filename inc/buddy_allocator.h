@@ -7,6 +7,7 @@
 #define null 0
 #define NO_PAGE 0xffffffff // level = -1 is for unaccesible page
 #define GET_BUDDY(number, level) (number ^ (1 << level))
+#define MAX_LEVEL (47 - 12)
 
 void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunks_number);
 uint64_t buddy_alloc(uint32_t level);
