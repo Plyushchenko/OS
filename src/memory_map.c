@@ -6,7 +6,6 @@ extern char bss_phys_end[];
 char PRINT_MULTIBOOT_MEMORY_AVAILABLE[] = "MULTIBOOT_MEMORY_AVAILABLE";
 char PRINT_MULTIBOOT_MEMORY_RESERVED[] = "MULTIBOOT_MEMORY_RESERVED";
 
-#define MAX_CHUNKS
 struct memory_chunk available_chunks[MAX_CHUNKS];
 uint32_t chunks_number = 0;
 
@@ -23,9 +22,9 @@ void add_to_available_chunks(uint64_t l, uint64_t r)
 
 void sort_available_chunks(void)
 {
-	for (int i = 0; i < chunks_number; i++)
+	for (uint32_t i = 0; i < chunks_number; i++)
 	{
-		for (int j = i + 1; j < chunks_number; j++)
+		for (uint32_t j = i + 1; j < chunks_number; j++)
 		{
 			if (available_chunks[i].l > available_chunks[j].l)
 			{
@@ -38,9 +37,9 @@ void sort_available_chunks(void)
 }
 void parse_memory_map(void) 
 {
-    multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info;
+    multiboot_info_t* mbi = (multiboot_info_t*)multiboot_info;
 
-   	if ((mbi -> flags) & (1 << 6) == 0)
+   	if (((mbi -> flags) & (1 << 6)) == 0)
 	{
 		return; //no memory map
 	} 
@@ -49,9 +48,9 @@ void parse_memory_map(void)
 	uint64_t kernel_end = (uint64_t)bss_phys_end;
 	printf("[0x%llx, 0x%llx] type = KERNEL\n", kernel_begin, kernel_end); 	
 		
-	for (multiboot_memory_map_t *mmap = (mbi -> mmap_addr); 
+	for (multiboot_memory_map_t* mmap = (mbi -> mmap_addr); 
 		mmap < (mbi -> mmap_addr) + (mbi -> mmap_length); 
-		mmap = (multiboot_memory_map_t *)((uint32_t)mmap + (mmap -> size) + 4))
+		mmap = (multiboot_memory_map_t*)((uint32_t)mmap + (mmap -> size) + 4))
 	{
 		uint64_t l = (mmap -> addr);
 		uint64_t r = l + (mmap -> len) - 1;
@@ -82,5 +81,12 @@ void parse_memory_map(void)
 
 		}
 	}
+	
+	for (uint32_t i = 0; i < 80; i++, printf("_"));
+	printf("\n");
+
 	sort_available_chunks();
+	init_buddy_allocator(available_chunks, chunks_number);
+//	buddy_init(available_chunks, chunks_number);
+
 }

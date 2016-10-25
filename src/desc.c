@@ -30,7 +30,7 @@ void interrupt_handler(uint64_t interrupt_vector, uint64_t error_code)
 {
 	if (is_exception(interrupt_vector))
 	{
-		printf("%s %lld", EXCEPTION, error_code);
+		printf("!%s! !%lld!\n", EXCEPTION, error_code);
 //		write_string_to_serial(EXCEPTION);
 //		print_two_digits(error_code);
 	}
@@ -39,7 +39,7 @@ void interrupt_handler(uint64_t interrupt_vector, uint64_t error_code)
 		printf("%s", JUST_INTERRUPTION);	
 //		write_string_to_serial(JUST_INTERRUPTION);
 	}
-	printf("%lld", interrupt_vector);	
+	printf("?%lld", interrupt_vector);	
 //	print_two_digits(interrupt_vector);
 	
 	//EOI	

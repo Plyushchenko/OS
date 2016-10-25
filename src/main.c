@@ -5,6 +5,7 @@
 #include <io.h>
 #include <stdint.h>
 #include <memory_map.h>
+#include <buddy_allocator.h>
 
 /*
 static void qemu_gdb_hang(void)
@@ -28,7 +29,18 @@ void main(void)
 //	enable_ints(); 
 
 	parse_memory_map();
-	
+//	uint64_t a = buddy_alloc(11);
+//	uint64_t b = buddy_alloc(11);
+//	uint64_t c = buddy_alloc(11);
+//0x7fd8000 0x7aac000 0x10c000
+//0xffff800007fd8000
+
+//	printf("????????????????????0x%llx 0x%llx 0x%llx\n", a, b, c);
+//	buddy_free(c);
+//	uint64_t d = buddy_alloc(12);
+//	printf("%llx\n", FOUR_GB);
+//	struct memory_chunk* ptr = available_chunks;
+
 //	while (1);
 	return;
 }

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <io.h>
 
-void print_memory_map(void);
+void parse_memory_map(void);
 
 struct memory_chunk
 {
@@ -14,4 +14,4 @@ struct memory_chunk
 
 #define MAX_CHUNKS 1000
 
-#endif /* MEMORY_MAP_H */
+#endif /* __MEMORY_MAP_H__ */

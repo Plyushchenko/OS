@@ -1,4 +1,4 @@
-make clean && make DEBUG=1
+make clean && make DEBUG=1 #2> cerr
 qemu-system-x86_64 -kernel kernel -serial stdio -s
 #vncviewer 127.0.0.1:5900
 #gdb kernel
