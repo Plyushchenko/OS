@@ -19,7 +19,7 @@ void get_max_level(uint32_t x)
 
 struct buddy_descriptor_page* buddy_pages = null;
 
-struct buddy_descriptor_page** free_pages_list;//[20];
+struct buddy_descriptor_page** free_pages_list; //[max_level]
 
 void add_buddy_page(uint32_t i, uint32_t level)
 {
@@ -27,9 +27,9 @@ void add_buddy_page(uint32_t i, uint32_t level)
 	free_pages_list[level] = &buddy_pages[i];
 }
 
-uint64_t delete_buddy_page(uint32_t level) //returns number
+uint32_t delete_buddy_page(uint32_t level) //returns number
 {
-	uint64_t res = (free_pages_list[level] -> number);
+	uint32_t res = (free_pages_list[level] -> number);
 	free_pages_list[level] = free_pages_list[level] -> next;
 	return res; 
 }
@@ -77,7 +77,7 @@ void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunk
 		uint64_t l = available_chunks[i].l;
 		uint64_t r = available_chunks[i].r;
 		uint64_t page_begin = l + (PAGE_SIZE - (l % PAGE_SIZE)) % PAGE_SIZE; // page_begin should be divisible by PAGE_SIZE
-        uint64_t num = page_begin / PAGE_SIZE;
+        uint32_t num = ((uint32_t)(page_begin / PAGE_SIZE));
 		while (page_begin + PAGE_SIZE <= r) 
 		{
 			buddy_pages[num].level = 0;
@@ -86,22 +86,22 @@ void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunk
         } 
     }
 
-	//merge as much as possible    
-	for (uint32_t i = 0; i < max_level; i++) 
+	//merge as much as possjble    
+	for (uint32_t j = 0; j < max_level; j++) 
 	{
-        for (uint32_t j = 0; j + (1 << (i + 1)) < pages_number; j += (1 << (i + 1))) 
+        for (uint32_t i = 0; i + (1 << (j + 1)) < pages_number; i += (1 << (j + 1))) 
 		{
-            if (buddy_pages[j].level != i || !buddy_pages[j].is_free)
+            if (buddy_pages[i].level != j || !buddy_pages[i].is_free)
 			{
 				continue;
 			}
-			uint32_t buddy = GET_BUDDY(j, i);
-            if (buddy >= pages_number || buddy_pages[buddy].level != i || !buddy_pages[buddy].is_free)
+			uint32_t buddy = GET_BUDDY(i, j);
+            if (buddy >= pages_number || buddy_pages[buddy].level != j || !buddy_pages[buddy].is_free)
             {
 			    continue;
 			}
 			//merge with buddy, set buddy unfree			
-			buddy_pages[j].level = i + 1;
+			buddy_pages[i].level = j + 1;
             buddy_pages[buddy].is_free = 0;               
         }
     }
@@ -110,6 +110,7 @@ void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunk
 	{
 		if (buddy_pages[i].level != NO_PAGE && buddy_pages[i].is_free) 
 		{
+			printf("%u %u\n", i, buddy_pages[i].level);			
 			add_buddy_page(i, buddy_pages[i].level);           
         }
     }
@@ -127,8 +128,8 @@ void make_free_pages_list_nonempty(uint32_t level)
 		return; // no free page of higher level
 	}
 
-	uint64_t i = delete_buddy_page(level + 1);
-	uint64_t buddy = GET_BUDDY(i, level);
+	uint32_t i = delete_buddy_page(level + 1);
+	uint32_t buddy = GET_BUDDY(i, level);
 
 	buddy_pages[i].level = level;
 	buddy_pages[buddy].level = level;
@@ -140,27 +141,28 @@ void make_free_pages_list_nonempty(uint32_t level)
 uint64_t buddy_alloc(uint32_t level)
 {
 	make_free_pages_list_nonempty(level);
-	uint64_t res = delete_buddy_page(level);
+	uint32_t res = delete_buddy_page(level);
+//	printf("res = %u\n", res);
 	uint64_t tmp = SHIFTED_BASE;	//overflow "res * PAGE_SIZE + SHIFTED_BASE"
-	return  res * PAGE_SIZE + tmp;
+	return ((uint64_t)res) * PAGE_SIZE + tmp;
 }
 
 void buddy_free(uint64_t address)
 {
-	uint64_t i = (address - SHIFTED_BASE) / PAGE_SIZE;
+	uint32_t i = (address - SHIFTED_BASE) / PAGE_SIZE;
 	buddy_pages[i].is_free = 1;
 
 	//merge with buddy; if this page has less number then buddy's then swap; go to next level
 	for (uint32_t j = buddy_pages[i].level; j < max_level; j++)
 	{
-		uint64_t buddy = GET_BUDDY(i, j);
+		uint32_t buddy = GET_BUDDY(i, j);
 		if (buddy_pages[buddy].level != j || !buddy_pages[buddy].is_free)
 		{
 			break;
 		}
 		if (buddy < i)
 		{
-			uint64_t tmp = i;
+			uint32_t tmp = i;
 			i = buddy;
 			buddy = tmp;
 		}		

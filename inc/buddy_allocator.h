@@ -17,7 +17,7 @@ struct buddy_descriptor_page
 	struct buddy_descriptor_page* next;
 	uint32_t level;
 	uint8_t is_free;
-	uint64_t number;
+	uint32_t number;
 };
 
 #endif /* __BUDDY_ALLOCATOR__ */

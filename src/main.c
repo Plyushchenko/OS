@@ -29,17 +29,14 @@ void main(void)
 //	enable_ints(); 
 
 	parse_memory_map();
-//	uint64_t a = buddy_alloc(11);
-//	uint64_t b = buddy_alloc(11);
-//	uint64_t c = buddy_alloc(11);
-//0x7fd8000 0x7aac000 0x10c000
-//0xffff800007fd8000
-
-//	printf("????????????????????0x%llx 0x%llx 0x%llx\n", a, b, c);
-//	buddy_free(c);
-//	uint64_t d = buddy_alloc(12);
-//	printf("%llx\n", FOUR_GB);
-//	struct memory_chunk* ptr = available_chunks;
+/*	uint64_t a = buddy_alloc(11);
+	uint64_t b = buddy_alloc(11);
+	uint64_t c = buddy_alloc(11);
+	printf("????????????????????0x%llx 0x%llx 0x%llx\n", a, b, c);
+	buddy_free(c);
+	uint64_t d = buddy_alloc(12);
+	printf("0x%llx\n", d);
+*/
 
 //	while (1);
 	return;
