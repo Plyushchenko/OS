@@ -33,14 +33,16 @@ uint32_t delete_buddy_page(uint32_t level) //returns number
 	free_pages_list[level] = free_pages_list[level] -> next;
 	return res; 
 }
+extern struct memory_chunk available_chunks[];
+extern uint32_t chunks_number;
+extern uint64_t memory_map_end;
 
-void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunks_number) 
+void init_buddy_allocator(void)//(struct memory_chunk available_chunks[], uint32_t chunks_number) 
 {
-	pages_number = available_chunks[chunks_number - 1].r / PAGE_SIZE;
-//	get_MAX_LEVEL(pages_number);
+	pages_number = memory_map_end / PAGE_SIZE;
+	uint32_t descriptor_pages_memory = (pages_number) * sizeof(struct buddy_descriptor_page);
 
-	uint32_t descriptor_pages_memory = (pages_number) * sizeof(struct buddy_descriptor_page);// + (MAX_LEVEL + 1) * sizeof(struct buddy_descriptor_page*);
-	//find a chunk for buddy descriptor pages and free pages list in first 4GB	
+	//find a chunk for buddy descriptor pages /*and free pages list */in first 4GB	
 	for (uint32_t i = 0; i < chunks_number; i++) 
 	{
 		if (get_length(available_chunks[i]) >= descriptor_pages_memory && available_chunks[i].r < FOUR_GB) 
@@ -51,19 +53,15 @@ void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunk
 			break;
 		}
 	}
-
 	if (buddy_pages == null)
 	{
 		return; //no buddy_pages
 	}	
 
-	//memory for free pages list begins where memory for buddy pages ends
-//	free_pages_list = (struct buddy_descriptor_page**) (&buddy_pages[pages_number]);
 	for (uint32_t i = 0; i <= MAX_LEVEL; i++)
 	{
 		free_pages_list[i] = null;
 	}
-
 	for (uint32_t i = 0; i < pages_number; i++) 
 	{
 		buddy_pages[i].level = NO_PAGE;
@@ -110,7 +108,7 @@ void init_buddy_allocator(struct memory_chunk available_chunks[], uint32_t chunk
 	{
 		if (buddy_pages[i].level != NO_PAGE && buddy_pages[i].is_free) 
 		{
-//			printf("%u %u\n", i, buddy_pages[i].level);			
+			printf("i = %u, level = %u\n", i, buddy_pages[i].level);			
 			add_buddy_page(i, buddy_pages[i].level);           
 		}
 	}
@@ -140,9 +138,10 @@ void make_free_pages_list_nonempty(uint32_t level)
 } 
 uint64_t buddy_alloc(uint32_t level)
 {
+	printf("level requested: %u\n", level);
 	make_free_pages_list_nonempty(level);
 	uint32_t res = delete_buddy_page(level);
-//	printf("res = %u\n", res);
+	printf("res = %u\n", res);
 	uint64_t tmp = SHIFTED_BASE;	//overflow "res * PAGE_SIZE + SHIFTED_BASE"
 	return ((uint64_t)res) * PAGE_SIZE + tmp;
 }

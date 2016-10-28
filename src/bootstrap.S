@@ -239,12 +239,12 @@ start64:
 	hlt
 	jmp 1b
 
-
 	.bss
 	.align PAGE_SIZE
 	.space PAGE_SIZE
 bootstrap_stack_top:
 	.align PAGE_SIZE
+	.global bootstrap_pml4
 bootstrap_pml4:
 	.space PAGE_SIZE
 bootstrap_pml3:

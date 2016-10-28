@@ -1,5 +1,5 @@
-#ifndef __MEMORY_MAP_H_
-#define __MEMORY_MAP_H_
+#ifndef __MEMORY_MAP_H__
+#define __MEMORY_MAP_H__
 
 #include <multiboot.h>
 #include <stdint.h>

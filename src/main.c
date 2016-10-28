@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <memory_map.h>
 #include <buddy_allocator.h>
+#include <paging.h>
+#include <slab_allocator.h>
 
 /*
 static void qemu_gdb_hang(void)
@@ -29,6 +31,9 @@ void main(void)
 //	enable_ints(); 
 
 	parse_memory_map();
+	init_paging();
+	init_buddy_allocator();
+
 /*	uint64_t a = buddy_alloc(11);
 	uint64_t b = buddy_alloc(11);
 	uint64_t c = buddy_alloc(11);
@@ -36,7 +41,19 @@ void main(void)
 	buddy_free(c);
 	uint64_t d = buddy_alloc(12);
 	printf("0x%llx\n", d);
+	struct slab_allocator *tmp;
+	tmp = make_slab_allocator(400);
+//	for (uint32_t i = 0; i < BLOCKS_FOR_ALLOCATION - 1; i++)
+	printf("main: 0x%llx\n", tmp);		
+
+	void *e;
+	for (int i = 0; i < 16; i++)
+		e = slab_alloc(tmp);
+	slab_free(tmp, e);
+	slab_alloc(tmp);
+	slab_alloc(tmp);
 */
+/**/
 
 //	while (1);
 	return;

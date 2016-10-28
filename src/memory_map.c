@@ -8,6 +8,7 @@ char PRINT_MULTIBOOT_MEMORY_RESERVED[] = "MULTIBOOT_MEMORY_RESERVED";
 
 struct memory_chunk available_chunks[MAX_CHUNKS];
 uint32_t chunks_number = 0;
+uint64_t memory_map_end = 0;
 
 void add_to_available_chunks(uint64_t l, uint64_t r)
 {
@@ -35,6 +36,7 @@ void sort_available_chunks(void)
 		}
 	}
 }
+
 void parse_memory_map(void) 
 {
     multiboot_info_t* mbi = (multiboot_info_t*)multiboot_info;
@@ -78,7 +80,10 @@ void parse_memory_map(void)
 		else
 		{
 			printf("[0x%llx, 0x%llx] type = MULTIBOOT_MEMORY_RESERVED\n", l, r);
-
+		}
+		if (memory_map_end < r)
+		{
+			memory_map_end = r;
 		}
 	}
 	
@@ -86,7 +91,4 @@ void parse_memory_map(void)
 	printf("\n");
 
 	sort_available_chunks();
-	init_buddy_allocator(available_chunks, chunks_number);
-//	buddy_init(available_chunks, chunks_number);
-
 }
