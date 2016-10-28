@@ -2,7 +2,6 @@
 
 uint32_t get_buddy_page_level(uint32_t x)
 {
-	x *= BLOCKS_FOR_ALLOCATION;
 	uint64_t allocated_memory = PAGE_SIZE;
 	uint32_t level = 0;
 	while (allocated_memory < x)
@@ -13,44 +12,39 @@ uint32_t get_buddy_page_level(uint32_t x)
 	return level;
 }
 
-struct slab_descriptor* make_slab_descriptors(uint32_t block_size)
+void split_to_descriptors(struct slab_descriptor* now, uint32_t block_size)
 {
-	struct slab_descriptor* descriptors;
-	struct slab_descriptor* now;
-	descriptors = now = (struct slab_descriptor*)buddy_alloc(get_buddy_page_level(block_size + sizeof(struct slab_descriptor)));	
-	//split a plain piece of memory into structure (picture above)
-	for (uint32_t i = 0; i < BLOCKS_FOR_ALLOCATION; i++)
+	for (uint32_t i = 0; i < BLOCKS_FOR_ALLOCATION - 1; i++)
 	{
-		if (i + 1 != BLOCKS_FOR_ALLOCATION)
-		{
-			now -> next = (struct slab_descriptor*)((char *)(now + block_size + sizeof(struct slab_descriptor)));
-		}
-		else
-		{
-			now -> next = null;
-		}
+		now -> next = (struct slab_descriptor*)((char *)(now + block_size + sizeof(struct slab_descriptor)));
 		now = now -> next;
 	}
-	return descriptors;
+	now -> next = null;
 }
+
 struct slab_allocator* make_slab_allocator(uint32_t block_size)
 {
-	//hope we can afford 4kb for each allocator
-	//sizeof(slab_allocator) < PAGE_SIZE
-	struct slab_allocator* allocator = (struct slab_allocator*)(buddy_alloc(0));
+	//allocate space for allocator and descriptors
+	uint32_t tmp = sizeof(struct slab_allocator) + BLOCKS_FOR_ALLOCATION * (block_size + sizeof(struct slab_descriptor));
+	struct slab_allocator* allocator = (struct slab_allocator*)buddy_alloc(get_buddy_page_level(tmp));	
 	allocator -> block_size = block_size;
-	allocator -> descriptor = make_slab_descriptors(block_size);
-	printf("make allocator: 0x%llx; 0x%llx\n", &allocator, allocator -> descriptor);	
+	allocator -> descriptor = (struct slab_descriptor*)((char *)(allocator + sizeof(struct slab_allocator)));
+	split_to_descriptors(allocator -> descriptor, allocator -> block_size);
 	return allocator;
 }
+
 void* slab_alloc(struct slab_allocator* allocator)
 {
 	if ((allocator -> descriptor) == null)
 	{
-		allocator -> descriptor = make_slab_descriptors(allocator -> block_size);
+		//allocate space only for descriptors	
+		uint32_t tmp = BLOCKS_FOR_ALLOCATION * ((allocator -> block_size) + sizeof(struct slab_descriptor));
+		struct slab_descriptor* descriptor = (struct slab_descriptor*)buddy_alloc(get_buddy_page_level(tmp));	
+		allocator -> descriptor = descriptor;
+		split_to_descriptors(allocator -> descriptor, allocator -> block_size);
 	}
 	void* res = (void*)(allocator -> descriptor);
-	(allocator -> descriptor) = (allocator -> descriptor) -> next;
+	allocator -> descriptor = (allocator -> descriptor) -> next;
 	return res;
 }
 
@@ -59,4 +53,4 @@ void slab_free(struct slab_allocator* allocator, void* address)
 	struct slab_descriptor* new_descriptor = (struct slab_descriptor*)(address - sizeof(struct slab_descriptor*));
 	new_descriptor -> next = (allocator -> descriptor);
 	(allocator -> descriptor) = new_descriptor;		
-}
+}	

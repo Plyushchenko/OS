@@ -33,8 +33,8 @@ void main(void)
 	parse_memory_map();
 	init_paging();
 	init_buddy_allocator();
-
-/*	uint64_t a = buddy_alloc(11);
+/*
+	uint64_t a = buddy_alloc(11);
 	uint64_t b = buddy_alloc(11);
 	uint64_t c = buddy_alloc(11);
 	printf("????????????????????0x%llx 0x%llx 0x%llx\n", a, b, c);
