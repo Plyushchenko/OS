@@ -1,11 +1,12 @@
 #include <threads.h>
+#include <ints.h>
 
 void lock()
 {
-	__asm__ volatile("cli");
+	disable_ints();
 }
 
 void unlock()
 {
-	__asm__ volatile("sti");
+	enable_ints();
 }
