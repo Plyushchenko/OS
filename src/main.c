@@ -8,6 +8,7 @@
 #include <buddy_allocator.h>
 #include <paging.h>
 #include <slab_allocator.h>
+#include <threads.h>
 
 /*
 static void qemu_gdb_hang(void)
